@@ -14,6 +14,7 @@ RUN apt install -y \
     sudo
 
 # Install tools we want
+# If you use Kaspersky, you can use http://ftp.riken.jp in the exclusion list.
 RUN apt install -y \
     kali-tools-web \
     iputils-ping \
@@ -60,3 +61,15 @@ RUN sudo apt install -y locales-all task-japanese task-japanese-desktop && \
     sudo dpkg-reconfigure --frontend noninteractive locales && \
     sudo update-locale LANG=ja_JP.UTF-8 && \
     sudo ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+# Setup the RDP
+RUN sudo apt install -y \
+    xrdp \
+    kali-desktop-gnome \
+    x11vnc \
+    xvfb \
+    novnc \
+    dbus-x11
+
+# Setup the VPN
+RUN sudo apt install -y openvpn
