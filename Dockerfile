@@ -5,17 +5,14 @@ ENV LANG=ja_JP.UTF-8
 
 # Get the latest everything
 RUN apt -y update && \
-    apt -y upgrade
-
-# Get the Kali default tools
-RUN apt install -y \
+    apt -y upgrade && \
+    apt install -y \
     kali-linux-core \
     kali-desktop-core \
-    sudo
-
-# Install tools we want
-# If you use Kaspersky, you can use http://ftp.riken.jp in the exclusion list.
-RUN apt install -y \
+    kali-linux-default \
+    sudo \
+    # Install tools we want
+    # If you use Kaspersky, you can use http://ftp.riken.jp in the exclusion list.
     kali-tools-web \
     iputils-ping \
     net-tools \
@@ -31,9 +28,11 @@ RUN apt install -y \
     commix \
     hashcat \
     # Wordlists
-    wordlists \ 
+    wordlists \
     cewl \
-    seclists
+    seclists \
+    # VPN
+    openvpn
 
 # Install the VSCode
 RUN apt install -y wget gpg && \
@@ -64,12 +63,13 @@ RUN sudo apt install -y locales-all task-japanese task-japanese-desktop && \
 
 # Setup the RDP
 RUN sudo apt install -y \
-    xrdp \
-    kali-desktop-gnome \
-    x11vnc \
-    xvfb \
-    novnc \
+    kali-desktop-xfce \
+    x11vnc xvfb novnc\
     dbus-x11
 
-# Setup the VPN
-RUN sudo apt install -y openvpn
+RUN echo "export DISPLAY=:1 \n\
+Xvfb :1 -screen 0 1280x720x24 &\n\
+startxfce4 & x11vnc -display :1 -xkb -forever -shared -repeat -listen 0.0.0.0 -nopw -reopen" >> /home/kali/rdesktop.sh && chmod +x /home/kali/rdesktop.sh
+
+# Setup the dotfiles
+# TODO: dotfilesのgitをcloneする
