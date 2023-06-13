@@ -68,7 +68,7 @@ RUN sudo apt install -y \
     dbus-x11
 
 RUN echo "export DISPLAY=:1 \n\
-Xvfb :1 -screen 0 1280x720x24 &\n\
+Xvfb :1 -screen 0 1920x1080x24 &\n\
 startxfce4 & x11vnc -display :1 -xkb -forever -shared -repeat -listen 0.0.0.0 -nopw -reopen" >> /home/kali/rdesktop.sh && chmod +x /home/kali/rdesktop.sh
 
 # Setup the dotfiles
