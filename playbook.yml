@@ -1,0 +1,67 @@
+- hosts: all
+  remote_user: root
+  become_user: root
+  become: true
+  tasks:
+    - name: package update (apt-get update) 
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install missing packages
+      become: yes
+      become_user: root
+      ansible.builtin.apt:
+        pkg:
+          - kali-desktop-i3
+          - i3-dotfiles
+          - task-japanese 
+          - task-japanese-desktop 
+          - locales-all
+          - fcitx-mozc
+          - ufw
+          - openvpn
+          - seclists
+          - rlwrap
+          - jd-gui
+        state: latest
+        update_cache: yes
+
+    - name: Set language setting(Japanese)
+      become: yes
+      become_user: root
+      shell: sed -i 's/# ja_JP.UTF-8 UTF-8/ja_JP.UTF-8 UTF-8/g' /etc/locale.gen && \
+             dpkg-reconfigure --frontend noninteractive locales && \
+             update-locale LANG=ja_JP.UTF-8 && \
+             ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+             # sed -i 's/XKBLAYOUT="us"/XKBLAYOUT="日本語"/g' /etc/default/keyboard
+             # export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0 && \
+             # setxkbmap jp
+
+    - name: Set root user i3-wm config file
+      become: yes
+      become_user: root
+      shell: cd /usr/share/ && \
+             sed -i "s/\/usr\/bin\/kitty/\/usr\/bin\/qterminal/g" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
+             rsync -a "$PWD"/i3-dotfiles/etc/skel/ /etc/skel/ && \
+             rsync -a "$PWD"/i3-dotfiles/etc/skel/ /root/ && \
+             rsync -a "$PWD"/i3-dotfiles/etc/skel/.local/bin
+
+    - name: Set vagrant user i3-wm config file
+      become_user: vagrant
+      shell: cd /usr/share/ && \
+             rsync -a "$PWD"/i3-dotfiles/etc/skel/ "$HOME"/
+
+    - name: Set my dotfiles
+      become_user: vagrant
+      shell: cd /vagrant/dotfiles/ && \
+             /vagrant/dotfiles/init.sh && \
+             echo "source "$HOME"/.ctf_profile.zsh" >> "$HOME"/.zshrc
+    
+    - name: Include software installation tasks
+      ansible.builtin.include_tasks:
+        file: Install_3rd_party.yml
+
+    # - name: Set shell of user kali to zsh
+    #   user:
+    #     name: kali
+    #     shell: /bin/zsh
