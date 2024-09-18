@@ -3,7 +3,7 @@ Host github
     User git 
     IdentityFile ~/.ssh/id_rsa
     
-    Host atmail
-            KexAlgorithms +diffie-hellman-group1-sha1
-            HostKeyAlgorithms=+ssh-rsa
-            PubkeyAcceptedAlgorithms=+ssh-rsa    
+Host atmail
+    KexAlgorithms +diffie-hellman-group1-sha1
+    HostKeyAlgorithms=+ssh-rsa
+    PubkeyAcceptedAlgorithms=+ssh-rsa    

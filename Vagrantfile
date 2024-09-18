@@ -24,12 +24,15 @@ Vagrant.configure("2") do |config|
           vmware.vmx["mks.enable3d"] = "TRUE"
       end
 
-    # PYTHONUNBUFFERED=1 ansible-playbook --limit="all" --inventory-file=/inventory -v playbook.yml
+    # PYTHONUNBUFFERED=1 ansible-playbook --limit="all" --inventory-file=/inventory -v playbook.yml -u vagrant
     config.vm.provision :ansible_local do |ansible|
         ansible.playbook = "playbook.yml"
         ansible.verbose = true
         ansible.install = true
         ansible.limit = "all"
         # ansible.become = true
+        ansible.extra_vars = {
+            ansible_user: "vagrant"
+        }
     end
 end
