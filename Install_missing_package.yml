@@ -1,12 +1,7 @@
-# - hosts: all
-#   connection: local
-#   remote_user: root
-#   become_user: root
-#   become: true
-#   tasks:
 ---
-  # Typora
   - name: Verify and add the Typora package signing key
+    become: yes
+    become_user: root
     ansible.builtin.apt_key:
       id: BA300B7755AFCFAE
       state: present
@@ -14,6 +9,8 @@
       validate_certs: true
 
   - name: Add Typora deb repository
+    become: yes
+    become_user: root
     ansible.builtin.apt_repository:
       repo: deb https://typora.io/linux ./
       state: present
@@ -21,6 +18,8 @@
       validate_certs: true
 
   - name: Install the latest version of Typora
+    become: yes
+    become_user: root
     ansible.builtin.apt:
       pkg:
         - typora
@@ -29,6 +28,8 @@
 
   # VSCode
   - name: Ensure apt uses https
+    become: yes
+    become_user: root
     ansible.builtin.apt:
       pkg:
         - apt-transport-https
@@ -36,6 +37,8 @@
       update_cache: true
 
   - name: Verify and add the Microsoft package signing key
+    become: yes
+    become_user: root
     ansible.builtin.apt_key:
       id: EB3E94ADBE1229CF
       keyring: /etc/apt/keyrings/packages.microsoft.gpg
@@ -50,19 +53,25 @@
   #     filename: vscode
   #     update_cache: true
   #     validate_certs: true
+  
   - name: Add Visual Studio Code deb repository
     become: yes
     become_user: root
     shell: echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list
 
   - name: Install the latest version of Visual Studio Code
+    become: yes
+    become_user: root
     ansible.builtin.apt:
       pkg:
         - code
       state: present
       update_cache: true
 
-  # ATuin
-  # - name: Install the Atuin
-  #   become_user: vagrant
-  #   shell: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+  - name: Install the latest version of ATuin
+    shell: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+  
+  - name: Install the latset version of nvm
+    shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    args:
+      creates: "$HOME/.nvm/nvm.sh"

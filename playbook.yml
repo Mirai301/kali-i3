@@ -1,13 +1,50 @@
 - hosts: all
-  remote_user: root
   become_user: root
   become: true
   tasks:
-    - name: package update (apt-get update) 
+    - name: Check remote user
+      debug:
+        msg: "The remote user is {{ ansible_user }}"
+
+    # vagrant経由でplaybookを実行した場合
+    - name: Set my dotfiles to vagrant user
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+      loop:
+        - { src: "/vagrant/dotfiles/git/.gitconfig", dest: "~/.gitconfig" }
+        - { src: "/vagrant/dotfiles/ssh/config", dest: "~/.ssh/config" }
+        - { src: "/vagrant/dotfiles/tmux/.tmux.conf", dest: "~/.tmux.conf" }
+        - { src: "/vagrant/dotfiles/vim/.vimrc", dest: "~/.vimrc" }
+        - { src: "/vagrant/dotfiles/tmux/.ctf_profile.zsh", dest: "~/.ctf_profile.zsh" }
+      when: ansible_user == 'vagrant'
+
+    # ホストマシンでplaybookを実行した場合
+    # eg: cd ~/Desktop/kali-i3/ && ansible-playbook --connection=local -i localhost, playbook.yaml
+    - name: Create .ssh directory
+      file:
+        path: "~/.ssh"
+        state: directory
+
+    - name: Set my dotfiles to kali user
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+      loop:
+        - { src: "~/Desktop/kali-i3/dotfiles/git/.gitconfig", dest: "~/.gitconfig" }
+        - { src: "~/Desktop/kali-i3/dotfiles/ssh/config", dest: "~/.ssh/config" }
+        - { src: "~/Desktop/kali-i3/dotfiles/tmux/.tmux.conf", dest: "~/.tmux.conf" }
+        - { src: "~/Desktop/kali-i3/dotfiles/vim/.vimrc", dest: "~/.vimrc" }
+        - { src: "~/Desktop/kali-i3/dotfiles/tmux/.ctf_profile.zsh", dest: "~/.ctf_profile.zsh" }
+      when: ansible_user == 'kali'
+
+    - name: package update
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install missing packages
+    - name: Install the missing packages
       become: yes
       become_user: root
       ansible.builtin.apt:
@@ -22,11 +59,13 @@
           - openvpn
           - seclists
           - rlwrap
+          - autorecon
           - jd-gui
+          - flameshot
         state: latest
         update_cache: yes
 
-    - name: Set language setting(Japanese)
+    - name: Set language and keyboard setting is Japanese
       become: yes
       become_user: root
       shell: sed -i 's/# ja_JP.UTF-8 UTF-8/ja_JP.UTF-8 UTF-8/g' /etc/locale.gen && \
@@ -37,31 +76,20 @@
              # export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0 && \
              # setxkbmap jp
 
-    - name: Set root user i3-wm config file
+    - name: Set i3-wm config file to root
       become: yes
       become_user: root
       shell: cd /usr/share/ && \
              sed -i "s/\/usr\/bin\/kitty/\/usr\/bin\/qterminal/g" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
+             sed -i "s/kitty/qterminal/g" "$PWD/i3-dotfiles/etc/skel/.config/xfce4/helpers.rc" && \
              rsync -a "$PWD"/i3-dotfiles/etc/skel/ /etc/skel/ && \
              rsync -a "$PWD"/i3-dotfiles/etc/skel/ /root/ && \
              rsync -a "$PWD"/i3-dotfiles/etc/skel/.local/bin
 
-    - name: Set vagrant user i3-wm config file
-      become_user: vagrant
+    - name: Set i3-wm config file to vagrant user
       shell: cd /usr/share/ && \
              rsync -a "$PWD"/i3-dotfiles/etc/skel/ "$HOME"/
 
-    - name: Set my dotfiles
-      become_user: vagrant
-      shell: cd /vagrant/dotfiles/ && \
-             /vagrant/dotfiles/init.sh && \
-             echo "source "$HOME"/.ctf_profile.zsh" >> "$HOME"/.zshrc
-    
     - name: Include software installation tasks
       ansible.builtin.include_tasks:
-        file: Install_3rd_party.yml
-
-    # - name: Set shell of user kali to zsh
-    #   user:
-    #     name: kali
-    #     shell: /bin/zsh
+        file: Install_missing_package.yml
