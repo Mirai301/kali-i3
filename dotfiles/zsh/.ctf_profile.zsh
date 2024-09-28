@@ -4,7 +4,7 @@
 setxkbmap -layout jp
 
 # atuin setting
-eval "$(atuin init zsh)"
+source $HOME/.atuin/bin/env
 
 # Check if the operating system is macOS
 if [[ $(uname) == "Darwin" ]]; then

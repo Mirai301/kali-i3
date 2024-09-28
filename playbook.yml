@@ -89,10 +89,9 @@
       become_user: root
       shell: cd /usr/share/ && \
              sed -i "s/\/usr\/bin\/kitty/\/usr\/bin\/qterminal/g" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
-             sed -i "/^### Screenshotting/d" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
+             sed -i "s/^### Screenshotting/\### Screenshotting\nbindsym \$mod\+Print exec \/usr\/bin\/flameshot gui\n/g" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
              sed -i "/.*takeFlameshot.*/d" "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
              rm -rf "$PWD"/i3-dotfiles/etc/skel/.local/bin/takeFlameshot && \
-             echo "### flameshot\nbindsym $mod+Print exec /usr/bin/flameshot gui" >> "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/keybinds.conf && \
              echo "\n## Start flameshot\nexec --no-startup-id /usr/bin/flameshot" >> "$PWD"/i3-dotfiles/etc/skel/.config/i3/config.d/execs.conf && \
              sed -i "s/kitty/qterminal/g" "$PWD"/i3-dotfiles/etc/skel/.config/xfce4/helpers.rc && \
              rsync -a "$PWD"/i3-dotfiles/etc/skel/ /etc/skel/ && \
