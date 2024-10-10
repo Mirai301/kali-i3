@@ -68,6 +68,7 @@
       state: present
       update_cache: true
 
+  # fix: 以下の書き方ではインストールが成功しなさそう、後日修正する
   - name: Install the latest version of ATuin
     shell: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
   

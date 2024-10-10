@@ -22,6 +22,7 @@ Vagrant.configure("2") do |config|
           vmware.memory = 4096
           vmware.cpus = 4
           vmware.vmx["mks.enable3d"] = "TRUE"
+          vmware.vmx["mks.noBeep"] = "TRUE"
       end
 
     # PYTHONUNBUFFERED=1 ansible-playbook --limit="all" --inventory-file=/inventory -v playbook.yml -u vagrant

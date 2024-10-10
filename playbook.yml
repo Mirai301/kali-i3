@@ -45,7 +45,10 @@
       when: ansible_user == 'kali'
     
     - name: Include the .ctf_profile.zsh
-      shell: echo "source /home/kali/.ctf_profile.zsh" >> /home/kali/.zshrc
+      lineinfile:
+        path: /home/kali/.zshrc
+        line: 'source /home/kali/.ctf_profile.zsh'
+        state: present
       when: ansible_user == 'kali'
 
     - name: package update
@@ -70,6 +73,8 @@
           - autorecon
           - jd-gui
           - flameshot
+          - git-lfs
+          - xsel
         state: latest
         update_cache: yes
 
